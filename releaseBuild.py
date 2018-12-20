@@ -66,13 +66,82 @@ scCount = 0
 scArr = [[]]
 
 
-def project(functionType, startNode, endNode, maxDepth):
+def project( ):
+
+
+	
+	if sys.argv[1] == "scc":
+		if len(sys.argv) == 3:
+			edgeList = readFile()
+			twitterGraph = graph()
+			createGraph(edgeList, 0, 1, twitterGraph, "Creating-Initial-Graph ")
+			print("\n")
+			stronglyConnected(twitterGraph, edgeList, int(sys.argv[2]))
+			return
+		else:
+			print("unknown command")
+			return
+
+	if sys.argv[1] == "rec":
+		edgeList = readFile()
+		twitterGraph = graph()	
+		createGraph(edgeList, 0, 1, twitterGraph, "Creating-Initial-Graph ")
+		print("\n")
+		if sys.argv[2] in twitterGraph.nodeList and sys.argv[3] in twitterGraph.nodeList:
+			if len(sys.argv) == 6 and sys.argv[5] == "all":
+				returnedData = []
+				for start in range(1,10):
+					for end in range(1,10):
+						# maxDepth = x
+						print("Start Node : " + sys.argv[2] + " End Node : " + sys.argv[3])
+						returnedData.append(str(start) + " --> " + str(end))
+						returnedData.append(DFSSearch7_2(twitterGraph, str(start), str(end), int(sys.argv[4])))
+						# recomendation(str(start), str(end), 4, twitterGraph)
+						# print(returnedData)
+						# for line in returnedData:
+						# 	print(line)
+						twitterGraph.clear()
+				massFileWrite(returnedData)
+				return
+			else:			
+				massFileWrite(recomendation(sys.argv[2], sys.argv[3], int(sys.argv[4]), twitterGraph))
+				return
+
+			
+		else:
+			print("Nodes not in graph")
+			return
+		return
+
+
+
+
+
+def massFileWrite(data):
+	import datetime
+	writeFileName = "REC"+datetime.datetime.now().strftime("%Y-%m-%d %H_%M")
+	writeFile = open(writeFileName, "w+")
+	succ = 0
+	for path in data:
+		print(path)
+		if path is not None:
+			succ = 1
+			writeFile.write("\n"+str(path)+"\n")
+	
+		else:
+			writeFile.write("\nNo paths of correct length\n")
+				
+	writeFile.close()
+
+
+def readFile():
+	# print(sys.argv)
 	# Pick file to operate on
 	# combinedFile = open("letterTest", "r")
 	# combinedFile = open("testEdges.edges", "r")
-	combinedFile = open("twitter_combined.txt", "r")
+	# combinedFile = open("twitter_combined.txt", "r")
 	# combinedFile = open("twitterHalf", "r")
-	# combinedFile = open("smalltest2.txt", "r")
+	combinedFile = open("smalltest2.txt", "r")
 	
 	# Create edge list 
 	edgeList = []
@@ -82,83 +151,36 @@ def project(functionType, startNode, endNode, maxDepth):
 		# 	break
 		edgeList.append((line.strip()).split())
 		lineCount+=1
-	combinedFile.close() 
+	combinedFile.close()
+	return edgeList
 
-	# Init graphs
-	twitterGraph = graph()
-
-	# Creates the graph from 0 to 1
-	createGraph(edgeList, 0, 1, twitterGraph, "Creating-Initial-Graph ")
-	print("\n")
-
-	if functionType == "scc":
-		stronglyConnected(twitterGraph, edgeList)
-	if functionType == "rec":
-		if str(startNode) in twitterGraph.nodeList and str(endNode) in twitterGraph.nodeList:
-			# startNode = "11348282"
-			# endNode =  "34743251"
-			recomendation(str(startNode), str(endNode), maxDepth, twitterGraph)
-
-			# for start in range(1,10):
-			# 	for end in range(1,10):
-			# 		# maxDepth = x
-			# 		print("Start Node : " + str(start) + " End Node : " + str(end))
-			# 		recomendation(str(start), str(end), 4, twitterGraph)
-			# 		twitterGraph.clear()
-		else:
-			print("Nodes not in graph")
-			return
-
-
-	# sort alphebetically for test
-	# for alNode in reverseGraph.nodeList:
-	# 	reverseGraph.nodeList[alNode].edgeList = sorted(reverseGraph.nodeList[alNode].edgeList)
-	# global scCount
-	# global scArr
-
-	# for startNode in descPostV:
-	# 	if reverseGraph.nodeList[startNode].postV == -1:
-	# 		scArr.append([])
-	# 		scCount += 1
-	# 		scArr[scCount]=[]
-	# DFSSearch5(reverseGraph, descPostV)
-	# reverseGraph.printGraph()
-
-	# # Removes empty first element from array
-	# # First element used for formatting, not needed when done
-	# scArr.pop(0)
-
-	# scArr.sort(key=len, reverse = True)
-	# print(scArr)
-	# # for conn in scArr:
-	# # 	if len(conn) > 1:
-	# # 		print(len(conn))
 
 
 
 
 def recomendation(startNode, endNode, maxDepth, graph):
 	returnedPaths = DFSSearch7_2(graph, startNode, endNode, maxDepth)
-	import datetime
-	writeFileName = "REC"+datetime.datetime.now().strftime("%Y-%m-%d %H_%M")
-	writeFile = open(writeFileName, "w+")
-	if  returnedPaths == None:
-		print("No Paths to Target")
-		writeFile.close()
-		return
-	succ = 0
+	return returnedPaths
+	# import datetime
+	# writeFileName = "REC"+datetime.datetime.now().strftime("%Y-%m-%d %H_%M")
+	# writeFile = open(writeFileName, "w+")
+	# if  returnedPaths == None:
+	# 	print("No Paths to Target")
+	# 	writeFile.close()
+	# 	return
+	# succ = 0
 	
-	if maxDepth == 0:
-		for path in returnedPaths:
-			succ = 1
-			writeFile.write("\n"+str(len(path)-1)+" : "+str(path))
-	else:
-		for path in returnedPaths:
-			if len(path)-1 == maxDepth:
-				succ = 1
-				writeFile.write("\n"+str(len(path)-1)+" : "+str(path))
-	if succ == 0:
-		writeFile.write("No paths of correct length")
+	# if maxDepth == 0:
+	# 	for path in returnedPaths:
+	# 		succ = 1
+	# 		writeFile.write("\n"+str(len(path)-1)+" : "+str(path))
+	# else:
+	# 	for path in returnedPaths:
+	# 		if len(path)-1 == maxDepth:
+	# 			succ = 1
+	# 			writeFile.write("\n"+str(len(path)-1)+" : "+str(path))
+	# if succ == 0:
+	# 	writeFile.write("No paths of correct length")
 
 
 		# print("Graph nodes : " + graphSize)
@@ -168,7 +190,7 @@ def recomendation(startNode, endNode, maxDepth, graph):
 		# 		writeFile.write(str(strongC))
 		# 		print("\nLength of Strongly Connected : "+ str(len(strongC)))
 				
-		writeFile.close()
+		# writeFile.close()
 
 	# print("")
 	# if  returnedPaths == None:
@@ -299,12 +321,12 @@ def DFSSearch7_2(graphName, startNode, endNode, maxDepth):
 	# Cleanup if last element in scList is empty
 	if len(scList[len(scList)-1]) == 0:
 		del scList[len(scList)-1]
-	# graphName.printGraph()
+	graphName.printGraph()
 	return allPaths
 
 
 
-def stronglyConnected(twitterGraph, edgeList):
+def stronglyConnected(twitterGraph, edgeList, sccLength):
 	
 	reverseGraph = graph()
 
@@ -335,7 +357,7 @@ def stronglyConnected(twitterGraph, edgeList):
 	writeFile = open(writeFileName, "w")
 	print("Graph nodes : " + graphSize)
 	for strongC in stronglyConnectedList:
-		if len(strongC) > 50:
+		if len(strongC) >= sccLength:
 			writeFile.write("\nLength of Strongly Connected : "+ str(len(strongC)) + "\n")
 			writeFile.write(str(strongC))
 			print("\nLength of Strongly Connected : "+ str(len(strongC)))
@@ -489,20 +511,20 @@ if __name__ == '__main__':
 	sys.setrecursionlimit(1500)
 	print("running")
 
-	if sys.argv[1] == "scc":
-		overallTime = timeit.repeat("project(\"scc\",0,0,0)", setup="from __main__ import project", repeat=1, number=1)
-	elif sys.argv[1] == "rec":
-		if len(sys.argv) == 5:
-			overallTime = timeit.repeat("project(\"rec\","+sys.argv[2]+","+sys.argv[3]+","+sys.argv[4]+")", setup="from __main__ import project", repeat=1, number=1)
-		else:
-			print("requires start & end nodes and MaxDepth")
-			quit()
+	# if sys.argv[1] == "scc":
+	# 	overallTime = timeit.repeat("project(\"scc\",0,0,0)", setup="from __main__ import project", repeat=1, number=1)
+	# elif sys.argv[1] == "rec":
+	# 	if len(sys.argv) == 5:
+	# 		overallTime = timeit.repeat("project(\"rec\","+sys.argv[2]+","+sys.argv[3]+","+sys.argv[4]+")", setup="from __main__ import project", repeat=1, number=1)
+	# 	else:
+	# 		print("requires start & end nodes and MaxDepth")
+	# 		quit()
 
-	else:
-		print("bad arguments")
-		quit()
+	# else:
+	# 	print("bad arguments")
+	# 	quit()
 
-	# overallTime = timeit.repeat("project(\"scc\")", setup="from __main__ import project", repeat=1, number=1)
+	overallTime = timeit.repeat("project()", setup="from __main__ import project", repeat=1, number=1)
 	# overallTime = timeit.repeat("project(\"rec\")", setup="from __main__ import project", repeat=1, number=1)
 	# overallTime = timeit.repeat("project(\""+str(sys.argv[1])+"\")", setup="from __main__ import project", repeat=1, number=1)
 
